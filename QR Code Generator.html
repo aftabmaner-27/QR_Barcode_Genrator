@@ -2,147 +2,162 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-    <style>
-        /* Basic reset and layout */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #000000; /* Dark purple background */
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-            gap: 20px;
-        }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #00475e;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-        h1 {
-            font-size: 2.5rem;
-            color: #E0E0E0;
-            margin-bottom: 10px;
-        }
+    .container {
+      background: #ffffff;
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #00475e;
+    }
 
-        input[type="text"] {
-            width: 80%;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            outline: none;
-            transition: all 0.3s ease;
-        }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #00475e;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #00475e;
+      margin-bottom: 20px;
+      outline: none;
+      transition: 0.3s ease;
+    }
 
-        input[type="text"]:focus {
-            border-color: #ffffff; /* Brighter purple border on focus */
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+    input[type="text"]:focus {
+      border-color: #00475e;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
 
-        button {
-            padding: 12px 25px;
-            background-color: #2bb4e2;
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-        button:hover {
-            background-color: #179f02;
-            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.2);
-        }
+    button {
+      flex: 1;
+      padding: 12px;
+      background-color: #00475e;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
 
-        .error-message {
-            color: #ff4d4d;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
+    button:hover {
+      background-color: #179f02;
+    }
 
-        #qrCode {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-        }
+    #qrCode {
+      margin-top: 25px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-        /* Responsive design */
-        @media (max-width: 600px) {
-            input[type="text"] {
-                width: 90%;
-            }
+    .error-message {
+      margin-top: 10px;
+      color: #d40000;
+      font-size: 0.9rem;
+    }
 
-            button {
-                width: 90%;
-            }
-        }
-    </style>
+    @media (max-width: 500px) {
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-    <div class="container">
-        <h1>QR Code Generator</h1>
-        <input type="text" id="inputString" placeholder="Enter text here" />
-        <button onclick="generateQRCode()">Generate QR Code</button>
-        <div class="error-message" id="error-message"></div>
-        <div id="qrCode"></div>
+  <div class="container">
+    <h1>QR Code Generator</h1>
+    <input type="text" id="inputString" placeholder="Enter text here" />
+    <div class="button-group">
+      <button onclick="generateQRCode()">Generate</button>
+      <button onclick="refreshPage()">Clear</button>
     </div>
+    <div class="error-message" id="error-message"></div>
+    <div id="qrCode"></div>
+  </div>
 
-    <script>
-        function generateQRCode() {
-            // Clear previous error or QR code
-            document.getElementById('error-message').textContent = '';
-            document.getElementById('qrCode').innerHTML = '';
+  <script>
+    function generateQRCode() {
+      const input = document.getElementById('inputString').value.trim();
+      const qrContainer = document.getElementById('qrCode');
+      const errorMessage = document.getElementById('error-message');
 
-            var inputString = document.getElementById('inputString').value.trim();
+      qrContainer.innerHTML = '';
+      errorMessage.textContent = '';
 
-            // Check if input is valid
-            if (inputString === '') {
-                document.getElementById('error-message').textContent = 'Please enter some text to generate the QR code.';
-                return;
-            }
+      if (input === '') {
+        errorMessage.textContent = 'Please enter some text to generate the QR code.';
+        return;
+      }
 
-            // Generate QR code using toDataURL method
-            QRCode.toDataURL(inputString, function (error, url) {
-                if (error) {
-                    console.error(error);
-                    document.getElementById('error-message').textContent = 'Error generating QR code, please try again.';
-                } else {
-                    // Display the QR code image
-                    var img = document.createElement('img');
-                    img.src = url;
-                    document.getElementById('qrCode').appendChild(img);
-                }
-            });
+      QRCode.toDataURL(input, function (error, url) {
+        if (error) {
+          console.error(error);
+          errorMessage.textContent = 'Error generating QR code.';
+          return;
         }
-    </script>
 
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = "Generated QR Code";
+        img.style.maxWidth = "100%";
+        img.style.height = "auto";
+        qrContainer.appendChild(img);
+      });
+    }
+
+    function refreshPage() {
+      document.getElementById('inputString').value = '';
+      document.getElementById('qrCode').innerHTML = '';
+      document.getElementById('error-message').textContent = '';
+    }
+  </script>
 </body>
 
 </html>
