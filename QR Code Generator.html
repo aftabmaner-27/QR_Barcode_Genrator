@@ -7,6 +7,8 @@
   <title>QR Code Generator</title>
   <link rel="icon" href="qrwebicon.ico" type="image/x-icon" />
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -31,10 +33,8 @@
       border-radius: 20px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       width: 100%;
-      max-width: 450px;
+      max-width: 700px;
       text-align: center;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     h1 {
@@ -43,7 +43,7 @@
       color: #00475e;
     }
 
-    input[type="text"] {
+    textarea {
       width: 100%;
       padding: 12px;
       font-size: 1rem;
@@ -52,13 +52,8 @@
       background-color: rgba(255, 255, 255, 0.1);
       color: #00475e;
       margin-bottom: 20px;
-      outline: none;
-      transition: 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-      border-color: #00475e;
-      background-color: rgba(255, 255, 255, 0.2);
+      height: 150px;
+      resize: vertical;
     }
 
     .button-group {
@@ -66,6 +61,7 @@
       justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
     button {
@@ -91,6 +87,22 @@
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .qr-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+      max-width: 150px;
+    }
+
+    .qr-label {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #00475e;
+      word-break: break-word;
     }
 
     .error-message {
@@ -114,17 +126,18 @@
 <body>
   <div class="container">
     <h1>QR Code Generator</h1>
-    <input type="text" id="inputString" placeholder="Enter text here" />
+    <textarea id="inputString" placeholder="Enter one line per QR code"></textarea>
     <div class="button-group">
-      <button onclick="generateQRCode()">Generate</button>
+      <button onclick="generateMultipleQRCodes()">Generate All</button>
       <button onclick="refreshPage()">Clear</button>
+      <button onclick="downloadPDF()">Download PDF</button>
     </div>
     <div class="error-message" id="error-message"></div>
     <div id="qrCode"></div>
   </div>
 
   <script>
-    function generateQRCode() {
+    function generateMultipleQRCodes() {
       const input = document.getElementById('inputString').value.trim();
       const qrContainer = document.getElementById('qrCode');
       const errorMessage = document.getElementById('error-message');
@@ -133,23 +146,37 @@
       errorMessage.textContent = '';
 
       if (input === '') {
-        errorMessage.textContent = 'Please enter some text to generate the QR code.';
+        errorMessage.textContent = 'Please enter text (one line per QR code).';
         return;
       }
 
-      QRCode.toDataURL(input, function (error, url) {
-        if (error) {
-          console.error(error);
-          errorMessage.textContent = 'Error generating QR code.';
-          return;
-        }
+      const lines = input.split('\n').map(line => line.trim()).filter(line => line !== '');
 
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = "Generated QR Code";
-        img.style.maxWidth = "100%";
-        img.style.height = "auto";
-        qrContainer.appendChild(img);
+      lines.forEach(line => {
+        QRCode.toDataURL(line, function (error, url) {
+          if (error) {
+            console.error(error);
+            errorMessage.textContent = 'Error generating QR code.';
+            return;
+          }
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'qr-item';
+
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = "QR Code";
+          img.style.width = "100px";
+          img.style.height = "100px";
+
+          const label = document.createElement('div');
+          label.className = 'qr-label';
+          label.textContent = line;
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(label);
+          qrContainer.appendChild(wrapper);
+        });
       });
     }
 
@@ -157,6 +184,35 @@
       document.getElementById('inputString').value = '';
       document.getElementById('qrCode').innerHTML = '';
       document.getElementById('error-message').textContent = '';
+    }
+
+    async function downloadPDF() {
+      const qrCodeContainer = document.getElementById('qrCode');
+      if (!qrCodeContainer.hasChildNodes()) {
+        alert("Generate QR codes before downloading.");
+        return;
+      }
+
+      const canvas = await html2canvas(qrCodeContainer, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pageWidth - 40;
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 20, 20, pdfWidth, pdfHeight);
+
+      pdf.save("qr-codes.pdf");
     }
   </script>
 </body>
